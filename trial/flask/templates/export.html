@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="page-header">
+  <h4><i class="bi bi-download me-2"></i>Export Laporan</h4>
+  <small class="text-muted">Download data dalam format CSV</small>
+</div>
+
+<div class="row g-3 mb-4">
+  <div class="col-md-4">
+    <label class="fw-semibold">Kuota Beasiswa (untuk label penerima)</label>
+    <div class="input-group mt-1">
+      <input type="number" id="kuotaInput" class="form-control"
+             value="{{ kuota }}" min="1" max="{{ n_lolos }}">
+      <span class="input-group-text">orang</span>
+    </div>
+  </div>
+</div>
+
+<div class="row g-3">
+  <div class="col-md-4">
+    <div class="card h-100">
+      <div class="card-body text-center py-4">
+        <i class="bi bi-clipboard-check fs-1 text-primary mb-3 d-block"></i>
+        <h6 class="fw-bold">Laporan Administrasi</h6>
+        <p class="text-muted small">Status lolos/tidak lolos dan detail masalah seluruh pendaftar</p>
+        <a id="btnAdm" href="/export/csv/administrasi" class="btn btn-primary btn-sm mt-2">
+          <i class="bi bi-download me-1"></i>Download CSV
+        </a>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card h-100">
+      <div class="card-body text-center py-4">
+        <i class="bi bi-trophy fs-1 text-warning mb-3 d-block"></i>
+        <h6 class="fw-bold">Laporan Substansi</h6>
+        <p class="text-muted small">Ranking BORDA final beserta label Penerima / Cadangan</p>
+        <a id="btnSub" href="/export/csv/substansi?kuota={{ kuota }}" class="btn btn-warning btn-sm mt-2">
+          <i class="bi bi-download me-1"></i>Download CSV
+        </a>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card h-100">
+      <div class="card-body text-center py-4">
+        <i class="bi bi-file-earmark-spreadsheet fs-1 text-success mb-3 d-block"></i>
+        <h6 class="fw-bold">Laporan Lengkap</h6>
+        <p class="text-muted small">Seluruh skor TOPSIS per DM dan ranking BORDA dalam satu file</p>
+        <a id="btnLgkp" href="/export/csv/lengkap" class="btn btn-success btn-sm mt-2">
+          <i class="bi bi-download me-1"></i>Download CSV
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card mt-4">
+  <div class="card-header"><i class="bi bi-info-circle me-1"></i>Keterangan File</div>
+  <div class="card-body">
+    <table class="table table-sm mb-0">
+      <thead><tr><th>File</th><th>Kolom</th><th>Keterangan</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><code>laporan_administrasi.csv</code></td>
+          <td>ID, Nama, Status, Masalah</td>
+          <td>Seluruh 100 pendaftar, lolos/tidak beserta alasan</td>
+        </tr>
+        <tr>
+          <td><code>laporan_substansi.csv</code></td>
+          <td>Keterangan, ID, Nama, Rank DM1–3, Poin Borda, Ranking Final</td>
+          <td>Hanya kandidat yang lolos administrasi</td>
+        </tr>
+        <tr>
+          <td><code>laporan_lengkap_spk.csv</code></td>
+          <td>ID, Nama, Skor TOPSIS (3 DM), Poin Borda, Ranking Final</td>
+          <td>Data lengkap untuk keperluan audit/dokumentasi</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+const kuotaInput = document.getElementById('kuotaInput');
+kuotaInput.addEventListener('change', () => {
+  const k = kuotaInput.value;
+  document.getElementById('btnSub').href   = `/export/csv/substansi?kuota=${k}`;
+  document.getElementById('btnLgkp').href  = `/export/csv/lengkap?kuota=${k}`;
+});
+</script>
+{% endblock %}

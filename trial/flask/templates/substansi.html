@@ -1,0 +1,184 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="page-header">
+  <h4><i class="bi bi-trophy me-2"></i>Ranking Substansi</h4>
+  <small class="text-muted">Hasil penilaian TOPSIS per DM dan agregasi BORDA</small>
+</div>
+
+<!-- Kuota slider -->
+<div class="card mb-4">
+  <div class="card-body">
+    <form method="GET" class="row g-2 align-items-center">
+      <div class="col-auto">
+        <label class="form-label fw-semibold mb-0">Kuota Beasiswa:</label>
+      </div>
+      <div class="col-md-2">
+        <input type="number" name="kuota" class="form-control form-control-sm"
+               value="{{ kuota }}" min="1" max="50">
+      </div>
+      <div class="col-auto">
+        <label class="form-label fw-semibold mb-0">Lihat TOPSIS DM:</label>
+      </div>
+      <div class="col-md-3">
+        <select name="dm" class="form-select form-select-sm">
+          {% for dm_key, dm_val in kriteria_list.items() %}
+          <option value="{{ dm_key }}" {% if dm_sel==dm_key %}selected{% endif %}>
+            {{ dm_val.label }}
+          </option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-auto">
+        <button class="btn btn-primary btn-sm"><i class="bi bi-arrow-repeat"></i> Terapkan</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Tab -->
+<ul class="nav nav-tabs mb-3" id="substansiTab">
+  <li class="nav-item">
+    <a class="nav-link active" data-bs-toggle="tab" href="#tabFinal">
+      <i class="bi bi-list-ol"></i> Ranking Final (BORDA)
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" data-bs-toggle="tab" href="#tabTopsis">
+      <i class="bi bi-calculator"></i> Skor TOPSIS per DM
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" data-bs-toggle="tab" href="#tabChart">
+      <i class="bi bi-bar-chart"></i> Visualisasi
+    </a>
+  </li>
+</ul>
+
+<div class="tab-content">
+
+  <!-- Tab 1: Ranking Final -->
+  <div class="tab-pane fade show active" id="tabFinal">
+    <div class="card">
+      <div class="card-body p-0">
+        <div class="table-responsive" style="max-height:550px;overflow-y:auto">
+          <table class="table table-hover mb-0">
+            <thead style="position:sticky;top:0;z-index:1">
+              <tr>
+                <th>Ranking</th><th>ID</th><th>Nama</th>
+                <th>Rank Esai</th><th>Rank Rencana</th><th>Rank Wawancara</th>
+                <th>Poin Borda</th><th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for r in rows_final %}
+              <tr class="{% if r.keterangan=='Penerima' %}table-success
+                          {% elif r.keterangan=='Cadangan' %}table-warning{% endif %}">
+                <td><strong>#{{ r.ranking_final }}</strong></td>
+                <td><code>{{ r.id }}</code></td>
+                <td>{{ r.nama }}</td>
+                <td>{{ r.rank_DM1_Esai }}</td>
+                <td>{{ r.rank_DM2_RencanaStudi }}</td>
+                <td>{{ r.rank_DM3_Wawancara }}</td>
+                <td><span class="badge bg-primary">{{ r.poin_borda }}</span></td>
+                <td>
+                  {% if r.keterangan == 'Penerima' %}
+                    <span class="badge badge-lolos px-2">🏆 Penerima</span>
+                  {% elif r.keterangan == 'Cadangan' %}
+                    <span class="badge badge-cadangan px-2">📋 Cadangan</span>
+                  {% else %}
+                    <span class="text-muted">—</span>
+                  {% endif %}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab 2: TOPSIS -->
+  <div class="tab-pane fade" id="tabTopsis">
+    <div class="card">
+      <div class="card-body p-0">
+        <div class="table-responsive" style="max-height:550px;overflow-y:auto">
+          <table class="table table-hover mb-0">
+            <thead style="position:sticky;top:0;z-index:1">
+              <tr><th>Ranking</th><th>ID</th><th>Nama</th><th>Skor TOPSIS</th></tr>
+            </thead>
+            <tbody>
+              {% for r in topsis_rows %}
+              <tr>
+                <td><strong>#{{ r.ranking }}</strong></td>
+                <td><code>{{ r.id }}</code></td>
+                <td>{{ r.nama }}</td>
+                <td>
+                  <div class="d-flex align-items-center gap-2">
+                    <div class="progress flex-grow-1" style="height:8px;min-width:100px">
+                      <div class="progress-bar bg-primary" style="width:{{ (r.skor*100)|int }}%"></div>
+                    </div>
+                    <span class="text-monospace small">{{ r.skor }}</span>
+                  </div>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab 3: Chart -->
+  <div class="tab-pane fade" id="tabChart">
+    <div class="row g-3">
+      <div class="col-md-6">
+        <div class="card">
+          <div class="card-header">Top 15 Skor TOPSIS</div>
+          <div class="card-body"><div id="chartTopsis" style="height:380px"></div></div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="card">
+          <div class="card-header">Top 20 Poin Borda Final</div>
+          <div class="card-body"><div id="chartBorda" style="height:380px"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+const bordaData  = {{ borda_chart  | safe }};
+const topsisData = {{ topsis_chart | safe }};
+
+Plotly.newPlot('chartTopsis', [{
+  type: 'bar', orientation: 'h',
+  x: topsisData.values, y: topsisData.labels,
+  marker: { color: '#3498db',
+    colorscale: [[0,'#85c1e9'],[1,'#1a5276']] },
+  text: topsisData.values.map(v => v.toFixed(3)), textposition:'outside',
+}], {
+  margin:{t:10,b:40,l:140,r:60},
+  xaxis:{title:'Skor TOPSIS', range:[0,1.05]},
+  plot_bgcolor:'white', paper_bgcolor:'white',
+}, {responsive:true});
+
+Plotly.newPlot('chartBorda', [{
+  type: 'bar', orientation: 'h',
+  x: bordaData.values, y: bordaData.labels,
+  marker: { color: bordaData.colors },
+  text: bordaData.values, textposition:'outside',
+}], {
+  margin:{t:10,b:40,l:140,r:60},
+  xaxis:{title:'Total Poin Borda'},
+  plot_bgcolor:'white', paper_bgcolor:'white',
+}, {responsive:true});
+</script>
+{% endblock %}

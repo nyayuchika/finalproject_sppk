@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SPK Beasiswa Unggulan</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+  <style>
+    body { background-color: #f4f6f9; font-size: 14px; }
+    .sidebar {
+      min-height: 100vh;
+      background: linear-gradient(180deg, #1a3c6e 0%, #2e6da4 100%);
+      width: 240px; position: fixed; top: 0; left: 0; padding-top: 20px;
+      z-index: 100;
+    }
+    .sidebar .brand { color: #fff; font-size: 16px; font-weight: 700;
+      padding: 10px 20px 20px; border-bottom: 1px solid rgba(255,255,255,0.15); }
+    .sidebar .nav-link { color: rgba(255,255,255,0.75); padding: 10px 20px;
+      border-radius: 6px; margin: 2px 10px; font-size: 13px; }
+    .sidebar .nav-link:hover, .sidebar .nav-link.active {
+      background: rgba(255,255,255,0.15); color: #fff; }
+    .sidebar .nav-link i { margin-right: 8px; }
+    .main-content { margin-left: 240px; padding: 24px; }
+    .page-header { background: white; border-radius: 10px;
+      padding: 20px 24px; margin-bottom: 20px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.07); }
+    .page-header h4 { margin: 0; font-weight: 700; color: #1a3c6e; }
+    .card { border: none; border-radius: 10px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+    .card-header { background: #f8f9fa; border-bottom: 1px solid #e9ecef;
+      font-weight: 600; color: #1a3c6e; border-radius: 10px 10px 0 0 !important; }
+    .metric-card { background: white; border-radius: 10px; padding: 20px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08); text-align: center; }
+    .metric-card .metric-value { font-size: 32px; font-weight: 700; color: #1a3c6e; }
+    .metric-card .metric-label { font-size: 12px; color: #6c757d; margin-top: 4px; }
+    .badge-lolos   { background: #d4edda; color: #155724; }
+    .badge-tidak   { background: #f8d7da; color: #721c24; }
+    .badge-cadangan{ background: #fff3cd; color: #856404; }
+    .table th { background: #f8f9fa; font-weight: 600; font-size: 12px;
+                text-transform: uppercase; letter-spacing: .5px; color: #495057; }
+    .table td { vertical-align: middle; }
+    .sidebar-footer { position: absolute; bottom: 20px; left: 0; right: 0;
+      padding: 0 20px; color: rgba(255,255,255,0.5); font-size: 11px; }
+  </style>
+</head>
+<body>
+
+<div class="sidebar">
+  <div class="brand">🎓 SPK Beasiswa Unggulan</div>
+  <nav class="nav flex-column mt-3">
+    <a class="nav-link {% if request.path == '/' %}active{% endif %}" href="/">
+      <i class="bi bi-speedometer2"></i> Dashboard</a>
+    <a class="nav-link {% if '/administrasi' in request.path %}active{% endif %}" href="/administrasi">
+      <i class="bi bi-clipboard-check"></i> Administrasi</a>
+    <a class="nav-link {% if '/substansi' in request.path %}active{% endif %}" href="/substansi">
+      <i class="bi bi-trophy"></i> Ranking Substansi</a>
+    <a class="nav-link {% if '/profil' in request.path %}active{% endif %}" href="/profil">
+      <i class="bi bi-person-lines-fill"></i> Profil Kandidat</a>
+    <a class="nav-link {% if '/export' in request.path %}active{% endif %}" href="/export">
+      <i class="bi bi-download"></i> Export Laporan</a>
+  </nav>
+  <div class="sidebar-footer">
+    <div>Metode: TOPSIS + BORDA</div>
+    <div class="mt-1">100 Pendaftar</div>
+  </div>
+</div>
+
+<div class="main-content">
+  {% block content %}{% endblock %}
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="page-header">
+  <h4><i class="bi bi-speedometer2 me-2"></i>Dashboard</h4>
+  <small class="text-muted">Ringkasan sistem pendukung keputusan seleksi Beasiswa Unggulan</small>
+</div>
+
+<!-- Metrik -->
+<div class="row g-3 mb-4">
+  <div class="col-md-3">
+    <div class="metric-card">
+      <div class="metric-value">{{ n_total }}</div>
+      <div class="metric-label"><i class="bi bi-people"></i> Total Pendaftar</div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="metric-card">
+      <div class="metric-value text-success">{{ n_lolos }}</div>
+      <div class="metric-label"><i class="bi bi-check-circle"></i> Lolos Administrasi</div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="metric-card">
+      <div class="metric-value text-danger">{{ n_tidak }}</div>
+      <div class="metric-label"><i class="bi bi-x-circle"></i> Tidak Lolos</div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="metric-card">
+      <div class="metric-value text-primary">{{ n_lolos }}</div>
+      <div class="metric-label"><i class="bi bi-star"></i> Masuk Substansi</div>
+    </div>
+  </div>
+</div>
+
+<!-- Chart baris 1 -->
+<div class="row g-3 mb-4">
+  <div class="col-md-4">
+    <div class="card h-100">
+      <div class="card-header"><i class="bi bi-pie-chart me-1"></i>Hasil Administrasi</div>
+      <div class="card-body"><div id="chartPie" style="height:280px"></div></div>
+    </div>
+  </div>
+  <div class="col-md-8">
+    <div class="card h-100">
+      <div class="card-header"><i class="bi bi-bar-chart me-1"></i>Jenis Masalah Administrasi</div>
+      <div class="card-body"><div id="chartBar" style="height:280px"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- Chart histogram -->
+<div class="card mb-4">
+  <div class="card-header"><i class="bi bi-graph-up me-1"></i>Distribusi Skor TOPSIS per DM</div>
+  <div class="card-body"><div id="chartHist" style="height:320px"></div></div>
+</div>
+
+<!-- Top 10 tabel -->
+<div class="card">
+  <div class="card-header"><i class="bi bi-trophy me-1"></i>Top 10 Kandidat Terbaik</div>
+  <div class="card-body p-0">
+    <table class="table table-hover mb-0">
+      <thead>
+        <tr><th>#</th><th>ID</th><th>Nama</th><th>Poin Borda</th><th>Ranking</th></tr>
+      </thead>
+      <tbody>
+        {% for r in top10 %}
+        <tr>
+          <td>
+            {% if loop.index == 1 %}<span class="fs-5">🥇</span>
+            {% elif loop.index == 2 %}<span class="fs-5">🥈</span>
+            {% elif loop.index == 3 %}<span class="fs-5">🥉</span>
+            {% else %}{{ loop.index }}{% endif %}
+          </td>
+          <td><code>{{ r.id }}</code></td>
+          <td><strong>{{ r.nama }}</strong></td>
+          <td><span class="badge bg-primary">{{ r.poin_borda }}</span></td>
+          <td><span class="badge bg-secondary">#{{ r.ranking_final }}</span></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+const pieData  = {{ pie_data | safe }};
+const barData  = {{ bar_data | safe }};
+const histData = {{ hist_data | safe }};
+
+// Pie chart
+Plotly.newPlot('chartPie', [{
+  type: 'pie', labels: pieData.labels, values: pieData.values,
+  marker: { colors: pieData.colors },
+  textinfo: 'label+percent', hole: 0.35,
+}], { margin: {t:10,b:10,l:10,r:10}, showlegend: true,
+     legend: {orientation:'h', y:-0.1} }, {responsive:true});
+
+// Bar chart masalah
+Plotly.newPlot('chartBar', [{
+  type: 'bar', orientation: 'h',
+  x: barData.values, y: barData.labels,
+  marker: { color: barData.values.map(v => v > 0 ? '#e74c3c' : '#bdc3c7') },
+  text: barData.values, textposition: 'outside',
+}], {
+  margin: {t:10,b:30,l:110,r:40},
+  xaxis: { title: 'Jumlah Pendaftar' },
+  plot_bgcolor: 'white', paper_bgcolor: 'white',
+}, {responsive:true});
+
+// Histogram TOPSIS
+const traces = Object.entries(histData).map(([label, d]) => ({
+  type: 'histogram', name: label, x: d.values,
+  opacity: 0.75, nbinsx: 15,
+}));
+Plotly.newPlot('chartHist', traces, {
+  barmode: 'overlay',
+  margin: {t:10,b:40,l:50,r:20},
+  xaxis: { title: 'Skor TOPSIS' },
+  yaxis: { title: 'Frekuensi' },
+  legend: { orientation: 'h', y: 1.1 },
+  plot_bgcolor: 'white', paper_bgcolor: 'white',
+}, {responsive:true});
+</script>
+{% endblock %}

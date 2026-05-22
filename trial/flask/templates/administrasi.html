@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="page-header">
+  <h4><i class="bi bi-clipboard-check me-2"></i>Verifikasi Administrasi</h4>
+  <small class="text-muted">Pengecekan kelengkapan dan kesesuaian dokumen pendaftar</small>
+</div>
+
+<!-- Metrik -->
+<div class="row g-3 mb-4">
+  <div class="col-md-4">
+    <div class="metric-card">
+      <div class="metric-value">{{ n_total }}</div>
+      <div class="metric-label">Total Pendaftar</div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="metric-card">
+      <div class="metric-value text-success">{{ n_lolos }}</div>
+      <div class="metric-label">Lolos Administrasi</div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="metric-card">
+      <div class="metric-value text-danger">{{ n_tidak }}</div>
+      <div class="metric-label">Tidak Lolos / Perlu Verifikasi</div>
+    </div>
+  </div>
+</div>
+
+<!-- Filter -->
+<div class="card mb-3">
+  <div class="card-body">
+    <form method="GET" class="row g-2 align-items-end">
+      <div class="col-md-3">
+        <label class="form-label fw-semibold">Filter Status</label>
+        <select name="status" class="form-select form-select-sm" onchange="this.form.submit()">
+          <option value="semua"  {% if status_filter=='semua'  %}selected{% endif %}>Semua</option>
+          <option value="lolos"  {% if status_filter=='lolos'  %}selected{% endif %}>✅ Lolos</option>
+          <option value="tidak"  {% if status_filter=='tidak'  %}selected{% endif %}>❌ Tidak Lolos</option>
+        </select>
+      </div>
+      <div class="col-md-5">
+        <label class="form-label fw-semibold">Cari Nama / ID</label>
+        <input type="text" name="search" class="form-control form-control-sm"
+               placeholder="Ketik nama atau ID..." value="{{ search }}">
+      </div>
+      <div class="col-md-2">
+        <button type="submit" class="btn btn-primary btn-sm w-100">
+          <i class="bi bi-search"></i> Cari
+        </button>
+      </div>
+      <div class="col-md-2">
+        <a href="/administrasi" class="btn btn-outline-secondary btn-sm w-100">Reset</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Tabel -->
+<div class="card">
+  <div class="card-header">
+    <i class="bi bi-table me-1"></i>Daftar Pendaftar
+    <span class="badge bg-secondary ms-2">{{ rows|length }} data</span>
+  </div>
+  <div class="card-body p-0">
+    <div class="table-responsive">
+      <table class="table table-hover mb-0">
+        <thead>
+          <tr>
+            <th>ID</th><th>Nama</th><th>Status</th>
+            <th>Jumlah Masalah</th><th>Detail Masalah</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for r in rows %}
+          <tr>
+            <td><code>{{ r.id }}</code></td>
+            <td><strong>{{ r.nama }}</strong></td>
+            <td>
+              {% if r.lolos_administrasi %}
+                <span class="badge badge-lolos px-2 py-1">✅ LOLOS</span>
+              {% else %}
+                <span class="badge badge-tidak px-2 py-1">❌ TIDAK LOLOS</span>
+              {% endif %}
+            </td>
+            <td>
+              {% if r.flags|length > 0 %}
+                <span class="badge bg-danger">{{ r.flags|length }}</span>
+              {% else %}
+                <span class="text-muted">—</span>
+              {% endif %}
+            </td>
+            <td>
+              {% if r.flags %}
+                {% for f in r.flags %}
+                  <span class="badge bg-danger-subtle text-danger me-1 mb-1"
+                        style="font-size:11px;font-weight:500">🔴 {{ f }}</span>
+                {% endfor %}
+              {% else %}
+                <span class="text-success small">Semua persyaratan terpenuhi</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
