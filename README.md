@@ -1,4 +1,4 @@
-# SPPK Final Project
+# SPPK Final Project - Kelompok 2
 **GDSS - Sistem Seleksi Beasiswa Unggulan**: 
 Integrasi TOPSIS dan Borda Count dalam sistem seleksi Beasiswa Unggulan.
 
