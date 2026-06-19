@@ -9,7 +9,7 @@ Integrasi TOPSIS dan Borda Count dalam sistem seleksi Beasiswa Unggulan.
 4. Nyayu Chika Marselina (25/568182/PPA/07148)
 
 ## Cara Menjalankan
-- Clone repositori _finalproject_sppk_ terlebih dahulu
+- Clone atau bisa juga download repositori _finalproject_sppk_ terlebih dahulu
 - Jalankan pip install -r requirements.txt pada CMD
 - Jalankan streamlit run app.py pada CMD
 - Halaman awal akan dijalankan pada localhost:8501
